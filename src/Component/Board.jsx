@@ -79,7 +79,7 @@ export default function Game() {
     setXIsNext(move % 2 === 0);
   }
 
-  const moves = history.map((squares, move) => {
+  const moveHistory = history.map((squares, move) => {
     let description;
 
     if (move > 0) {
@@ -88,21 +88,25 @@ export default function Game() {
       description = "Go to game start";
     }
     return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
+        <div>
+      <li key={move} className=" bg-gray-700 text-blue border border-white px-6 py-1 mt-1 rounded-full">
+        <button  onClick={() => jumpTo(move)} >{description}</button>
       </li>
+      </div>
     );
   });
 
   return (
     <>
-      <div>
+    <div className="flex justify-center p-3">
+      <div className="mr-15">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
 
-      <div>
-        <ol>{moves}</ol>
+      <div className="mt-15">
+        <ol className=" p-1 text-lg text-white">{moveHistory}</ol>
       </div>
+    </div>
     </>
   );
 }
