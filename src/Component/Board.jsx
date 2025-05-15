@@ -4,7 +4,7 @@ function Square({ value, onSquareClick }) {
   return (
     <button
       onClick={onSquareClick}
-      className="shadow-md bg-white border border-gray-400 h-12 w-12 m-1 leading-9 text-lg rounded-full"
+      className="h-16 w-16 md:h-20 md:w-20 bg-white border border-gray-300 text-xl md:text-2xl font-bold rounded-lg shadow-sm hover:bg-gray-100 transition-all duration-200 flex items-center justify-center"
     >
       {value}
     </button>
@@ -13,19 +13,10 @@ function Square({ value, onSquareClick }) {
 
 function Board({ xIsNext, squares, onPlay }) {
   const winner = calculateWinner(squares);
-  let status;
-
-  if (winner) {
-    status = `Winner: ${winner}`;
-  } else {
-    status = "Next player: " + (xIsNext ? "X" : "O");
-  }
+  const status = winner ? `🎉 Winner: ${winner}` : `Next player: ${xIsNext ? "❌" : "⭕"}`;
 
   function handClick(i) {
-    if (squares[i] || calculateWinner(squares)) {
-      return;
-    }
-
+    if (squares[i] || calculateWinner(squares)) return;
     const nextSquares = squares.slice();
     nextSquares[i] = xIsNext ? "X" : "O";
     onPlay(nextSquares);
@@ -33,27 +24,16 @@ function Board({ xIsNext, squares, onPlay }) {
 
   return (
     <>
-      <div className="flex justify-center mt-5">
-        <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full mb-4">
+      <div className="flex justify-center mt-6">
+        <span className="inline-block bg-blue-100 text-blue-800 text-sm font-semibold px-5 py-2 rounded-full shadow-md">
           {status}
         </span>
       </div>
-      <div className="flex flex-wrap justify-center">
-        <Square value={squares[0]} onSquareClick={() => handClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handClick(2)} />
-      </div>
 
-      <div className="flex flex-wrap justify-center">
-        <Square value={squares[3]} onSquareClick={() => handClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handClick(5)} />
-      </div>
-
-      <div className="flex flex-wrap justify-center">
-        <Square value={squares[6]} onSquareClick={() => handClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handClick(8)} />
+      <div className="grid grid-cols-3 text-black gap-3 justify-center mx-auto mt-6 max-w-xs md:max-w-sm">
+        {squares.map((value, index) => (
+          <Square key={index} value={value} onSquareClick={() => handClick(index)} />
+        ))}
       </div>
     </>
   );
@@ -66,12 +46,10 @@ export default function Game() {
   const currentSquares = history[currentMove];
 
   function handlePlay(nextSquares) {
-    setXIsNext(!xIsNext);
-    setHistory([...history, nextSquares]);
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-    setHistory([...history, nextSquares]);
     setHistory(nextHistory);
-    setCurrentMove(nextHistory.length-1);
+    setCurrentMove(nextHistory.length - 1);
+    setXIsNext(!xIsNext);
   }
 
   function jumpTo(move) {
@@ -79,35 +57,31 @@ export default function Game() {
     setXIsNext(move % 2 === 0);
   }
 
-  const moveHistory = history.map((squares, move) => {
-    let description;
-
-    if (move > 0) {
-      description = `Go to move #${move}`;
-    } else {
-      description = "Go to game start";
-    }
+  const moveHistory = history.map((_, move) => {
+    const description = move ? `Move #${move}` : "Start Game";
     return (
-        <div>
-      <li key={move} className=" bg-gray-700 text-blue border border-white px-6 py-1 mt-1 rounded-full">
-        <button  onClick={() => jumpTo(move)} >{description}</button>
+      <li key={move} className="mb-2">
+        <button
+          onClick={() => jumpTo(move)}
+          className="w-full text-left px-4 py-2 rounded-full bg-white text-blue-700 font-medium border border-blue-300 hover:bg-blue-100 transition"
+        >
+          {description}
+        </button>
       </li>
-      </div>
     );
   });
 
   return (
-    <>
-    <div className="flex justify-center p-3">
-      <div className="mr-15">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-700 text-white flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-4xl flex flex-col md:flex-row items-start gap-8">
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
-      </div>
 
-      <div className="mt-15">
-        <ol className=" p-1 text-lg text-white">{moveHistory}</ol>
+        <div className="w-full md:w-1/3 bg-gray-800 p-4 rounded-xl shadow-lg max-h-[400px] overflow-y-auto">
+          <h2 className="text-xl font-semibold mb-4 text-center">Move History</h2>
+          <ol>{moveHistory}</ol>
+        </div>
       </div>
     </div>
-    </>
   );
 }
 
@@ -122,8 +96,7 @@ function calculateWinner(squares) {
     [0, 4, 8],
     [2, 4, 6],
   ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
+  for (let [a, b, c] of lines) {
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a];
     }
